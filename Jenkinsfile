@@ -7,7 +7,8 @@ pipeline {
     
     environment {
         DOCKER_HUB_USER = 'mohanmonish2006'
-        IMAGE_NAME      = 'transport-dashboard'
+        // Using a clean name to completely satisfy the plugin validation pattern rules
+        IMAGE_NAME      = 'transportdashboard'
         REGISTRY_CRED   = 'docker-hub-credentials'
     }
 
@@ -23,14 +24,15 @@ pipeline {
                 stage('Build Docker Image') {
                     steps {
                         script {
-                            dockerImage = docker.build("/:")
+                            // Using plain string concatenation to prevent escaping issues
+                            def imageNameCombined = DOCKER_HUB_USER + "/" + IMAGE_NAME + ":" + params.IMAGE_TAG
+                            dockerImage = docker.build(imageNameCombined.toLowerCase())
                         }
                     }
                 }
                 stage('Static Mock Code Validation') {
                     steps {
                         echo "Validating code syntax standards..."
-                        // Using native PowerShell to match string contents instead of Linux grep
                         powershell "Select-String -Pattern '<html>' -Path index.html"
                     }
                 }
@@ -50,7 +52,6 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
-                    // Using native PowerShell commands to update the YAML image text dynamically
                     powershell "(Get-Content deployment.yaml) -replace 'image: .*', 'image: /:' | Set-Content deployment.yaml"
                     powershell "kubectl --kubeconfig='' apply -f deployment.yaml"
                     powershell "kubectl --kubeconfig='' rollout status deployment/transport-dashboard --timeout=60s"
