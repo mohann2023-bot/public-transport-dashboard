@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Transport Monitoring Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 15px; margin: 10px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .status-low { color: green; font-weight: bold; }
+        .status-mod { color: orange; font-weight: bold; }
+        .status-high { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>🚌 Public Transport Monitoring Dashboard (v1.0)</h1>
+    
+    <div class="card">
+        <h2>Bus Route Status</h2>
+        <ul id="route-list">
+            <li><strong>Route 101</strong>: Downtown to Uptown | ETA: 5 mins | Crowd: <span class="status-low">Low</span> | Status: Normal</li>
+            <li><strong>Route 202</strong>: Metro Station to Airport | ETA: 12 mins | Crowd: <span class="status-high">High</span> | Status: Normal</li>
+        </ul>
+    </div>
+
+    <div class="card">
+        <h2>Active Advisories & Disruptions</h2>
+        <p>⚠️ No major delays reported. Smooth operations citywide.</p>
+    </div>
+
+    <script>
+        console.log("Dashboard initialized successfully.");
+    </script>
+</body>
+</html>
