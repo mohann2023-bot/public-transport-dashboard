@@ -30,7 +30,8 @@ pipeline {
                 stage('Static Mock Code Validation') {
                     steps {
                         echo "Validating code syntax standards..."
-                        sh "grep -q '<html>' index.html"
+                        // Using native PowerShell to match string contents instead of Linux grep
+                        powershell "Select-String -Pattern '<html>' -Path index.html"
                     }
                 }
             }
@@ -49,9 +50,10 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
-                    sh "sed -i 's|image: .*|image: /:|g' deployment.yaml"
-                    sh "kubectl --kubeconfig= apply -f deployment.yaml"
-                    sh "kubectl --kubeconfig= rollout status deployment/transport-dashboard --timeout=60s"
+                    // Using native PowerShell commands to update the YAML image text dynamically
+                    powershell "(Get-Content deployment.yaml) -replace 'image: .*', 'image: /:' | Set-Content deployment.yaml"
+                    powershell "kubectl --kubeconfig='' apply -f deployment.yaml"
+                    powershell "kubectl --kubeconfig='' rollout status deployment/transport-dashboard --timeout=60s"
                 }
             }
         }
@@ -61,8 +63,8 @@ pipeline {
         failure {
             echo "? Deployment update failed! Triggering automatic rollback procedure..."
             withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
-                sh "kubectl --kubeconfig= rollout undo deployment/transport-dashboard"
-                sh "kubectl --kubeconfig= rollout status deployment/transport-dashboard"
+                powershell "kubectl --kubeconfig='' rollout undo deployment/transport-dashboard"
+                powershell "kubectl --kubeconfig='' rollout status deployment/transport-dashboard"
             }
         }
         success {
