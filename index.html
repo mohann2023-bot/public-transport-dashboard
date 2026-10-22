@@ -10,26 +10,44 @@
         .status-low { color: green; font-weight: bold; }
         .status-mod { color: orange; font-weight: bold; }
         .status-high { color: red; font-weight: bold; }
+        .alert { background-color: #ffdddd; border-left: 6px solid #f44336; padding: 10px; margin: 5px 0; }
     </style>
 </head>
 <body>
-    <h1>🚌 Public Transport Monitoring Dashboard (v1.0)</h1>
+    <h1>🚌 Public Transport Monitoring Dashboard (v1.1)</h1>
     
+    <div class="card">
+        <h2>Filter Routes</h2>
+        <input type="text" id="routeFilter" onkeyup="filterRoutes()" placeholder="Search for route numbers...">
+    </div>
+
     <div class="card">
         <h2>Bus Route Status</h2>
         <ul id="route-list">
-            <li><strong>Route 101</strong>: Downtown to Uptown | ETA: 5 mins | Crowd: <span class="status-low">Low</span> | Status: Normal</li>
-            <li><strong>Route 202</strong>: Metro Station to Airport | ETA: 12 mins | Crowd: <span class="status-high">High</span> | Status: Normal</li>
+            <li class="route-item"><strong>Route 101</strong> (Downtown -> Uptown) | ETA: 5 mins | Crowd: <span class="status-low">Low</span> | Status: Normal</li>
+            <li class="route-item"><strong>Route 202</strong> (Metro Station -> Airport) | ETA: 25 mins | Crowd: <span class="status-high">High</span> | Status: <span class="status-mod">Delayed</span></li>
+            <li class="route-item"><strong>Route 305</strong> (Westside -> Eastside) | ETA: -- mins | Crowd: -- | Status: <span class="status-high">Diverted</span></li>
         </ul>
     </div>
 
     <div class="card">
         <h2>Active Advisories & Disruptions</h2>
-        <p>⚠️ No major delays reported. Smooth operations citywide.</p>
+        <div class="alert">🚨 <strong>Route 202:</strong> 15-minute delay due to heavy traffic on Main St.</div>
+        <div class="alert">🚨 <strong>Route 305:</strong> Temporary stop closure at 5th Avenue. Using alternate route via Broad St.</div>
     </div>
 
     <script>
-        console.log("Dashboard initialized successfully.");
+        function filterRoutes() {
+            let input = document.getElementById('routeFilter').value.toUpperCase();
+            let items = document.getElementsByClassName('route-item');
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].innerText.toUpperCase().includes(input)) {
+                    items[i].style.display = "";
+                } else {
+                    items[i].style.display = "none";
+                }
+            }
+        }
     </script>
 </body>
 </html>
