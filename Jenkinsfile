@@ -23,7 +23,7 @@ pipeline {
                 stage('Build Docker Image') {
                     steps {
                         script {
-                            dockerImage = docker.build("\/\:\")
+                            dockerImage = docker.build("/:")
                         }
                     }
                 }
@@ -39,7 +39,7 @@ pipeline {
         stage('Push Image to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://docker.io', "\") {
+                    docker.withRegistry('https://docker.io', "") {
                         dockerImage.push()
                     }
                 }
@@ -49,14 +49,9 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
-                    // Update yaml manifest dynamically with target version tag
-                    sh "sed -i 's|image: .*|image: \/\:\|g' deployment.yaml"
-                    
-                    // Apply application rollout
-                    sh "kubectl --kubeconfig=\ apply -f deployment.yaml"
-                    
-                    // Track rollout completion and timeout quickly if a failure occurs
-                    sh "kubectl --kubeconfig=\ rollout status deployment/transport-dashboard --timeout=60s"
+                    sh "sed -i 's|image: .*|image: /:|g' deployment.yaml"
+                    sh "kubectl --kubeconfig= apply -f deployment.yaml"
+                    sh "kubectl --kubeconfig= rollout status deployment/transport-dashboard --timeout=60s"
                 }
             }
         }
@@ -66,8 +61,8 @@ pipeline {
         failure {
             echo "? Deployment update failed! Triggering automatic rollback procedure..."
             withCredentials([file(credentialsId: 'kubeconfig-credentials', variable: 'KUBECONFIG')]) {
-                sh "kubectl --kubeconfig=\ rollout undo deployment/transport-dashboard"
-                sh "kubectl --kubeconfig=\ rollout status deployment/transport-dashboard"
+                sh "kubectl --kubeconfig= rollout undo deployment/transport-dashboard"
+                sh "kubectl --kubeconfig= rollout status deployment/transport-dashboard"
             }
         }
         success {
