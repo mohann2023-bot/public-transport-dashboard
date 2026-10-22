@@ -7,7 +7,6 @@ pipeline {
     
     environment {
         DOCKER_HUB_USER = 'mohanmonish2006'
-        // Using a clean name to completely satisfy the plugin validation pattern rules
         IMAGE_NAME      = 'transportdashboard'
         REGISTRY_CRED   = 'docker-hub-credentials'
     }
@@ -23,11 +22,8 @@ pipeline {
             parallel {
                 stage('Build Docker Image') {
                     steps {
-                        script {
-                            // Using plain string concatenation to prevent escaping issues
-                            def imageNameCombined = DOCKER_HUB_USER + "/" + IMAGE_NAME + ":" + params.IMAGE_TAG
-                            dockerImage = docker.build(imageNameCombined.toLowerCase())
-                        }
+                        // Native Windows terminal build execution step
+                        bat "docker build -t %DOCKER_HUB_USER%/%IMAGE_NAME%:%IMAGE_TAG% ."
                     }
                 }
                 stage('Static Mock Code Validation') {
@@ -41,10 +37,11 @@ pipeline {
 
         stage('Push Image to Docker Hub') {
             steps {
-                script {
-                    docker.withRegistry('https://docker.io', "") {
-                        dockerImage.push()
-                    }
+                // Dynamically binds your stored web credentials parameters safely to local variables
+                withCredentials([usernamePassword(credentialsId: "", passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USER')]) {
+                    // Logs in and pushes cleanly using raw system commands
+                    bat "docker login -u %DOCKER_USER% -p %DOCKER_PASSWORD%"
+                    bat "docker push %DOCKER_HUB_USER%/%IMAGE_NAME%:%IMAGE_TAG%"
                 }
             }
         }
